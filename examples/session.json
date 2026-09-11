@@ -1,0 +1,81 @@
+{
+  "format": "trae2codex.source.v1",
+  "sessions": [
+    {
+      "session_id": "trae-demo-001",
+      "title": "Migration demo",
+      "created_at": "2026-09-01T10:00:00Z",
+      "messages": [
+        {
+          "role": "user",
+          "content": [{"type": "text", "text": "Inspect the project, record the answer as migration-demo-42, and add a hello file."}]
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {"type": "thinking", "thinking": "I will inspect the existing files before making a small change."},
+            {"type": "text", "text": "I am checking the project."},
+            {
+              "type": "tool_use", "id": "command-1", "name": "RunCommand", "kind": "command",
+              "input": {"command": "pwd"}, "command": ["pwd"]
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "tool_result", "tool_use_id": "command-1", "content": "/example/project",
+              "exit_code": 0, "stdout": "/example/project\n", "stderr": "", "duration_ms": 12
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use", "id": "skill-1", "name": "Read", "input": {"file_path": "skills/example/SKILL.md"}
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [{"type": "tool_result", "tool_use_id": "skill-1", "content": "Use the existing project conventions.", "duration_ms": 2}]
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use", "id": "mcp-1", "name": "mcp__docs__search",
+              "server": "docs", "tool": "search", "input": {"query": "hello"}
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [{"type": "tool_result", "tool_use_id": "mcp-1", "content": "The greeting is hello.", "duration_ms": 15}]
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use", "id": "edit-1", "name": "Write", "kind": "file_change",
+              "input": {"file_path": "hello.txt", "content": "hello\n"},
+              "changes": {"hello.txt": {"type": "add", "content": "hello\n"}}
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [{"type": "tool_result", "tool_use_id": "edit-1", "content": "Added hello.txt", "success": true, "duration_ms": 3}]
+        },
+        {
+          "role": "assistant", "phase": "final_answer",
+          "content": [{"type": "text", "text": "Added hello.txt. The recorded answer is migration-demo-42."}]
+        },
+        {"role": "user", "content": "What answer did we record?"},
+        {"role": "assistant", "content": "migration-demo-42", "phase": "final_answer"}
+      ]
+    }
+  ]
+}

@@ -1,1 +1,16 @@
 *.DS_Store
+.research/
+.local/
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+*.db
+*.db-*
+*.sqlite*
+.env
+.env.*
+*.key
