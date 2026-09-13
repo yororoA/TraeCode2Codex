@@ -329,10 +329,31 @@ class MigrationTests(unittest.TestCase):
 
     def test_unsupported_schema_fails(self):
         path = self.root / "empty.db"
-        with sqlite3.connect(path) as connection:
+        # sqlite3.Connection's context manager ends a transaction, not the connection.
+        with contextlib.closing(sqlite3.connect(path)) as connection, connection:
             connection.execute("CREATE TABLE unrelated (a TEXT)")
         with self.assertRaisesRegex(MigrationError, "schema"):
             load_source(path, cwd=str(self.root))
+
+    def test_unsupported_schema_closes_connections_before_cleanup(self):
+        path = self.root / "empty.db"
+        connections = []
+        original_connect = sqlite3.connect
+
+        def track_connection(*args, **kwargs):
+            connection = original_connect(*args, **kwargs)
+            connections.append(connection)
+            self.addCleanup(connection.close)
+            return connection
+
+        # Holding references prevents GC from hiding a connection leak on POSIX.
+        with patch("sqlite3.connect", side_effect=track_connection):
+            self.test_unsupported_schema_fails()
+        self.assertEqual(len(connections), 2)
+        for connection in connections:
+            with self.assertRaises(sqlite3.ProgrammingError):
+                connection.execute("SELECT 1")
+        path.unlink()
 
     def test_encrypted_input_is_not_treated_as_empty_database(self):
         path = self.root / "encrypted.db"
