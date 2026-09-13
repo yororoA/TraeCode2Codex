@@ -1,0 +1,69 @@
+name: Test and Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.9", "3.12"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m unittest discover -s tests -v
+      - run: python -m pip install ruff==0.16.7
+      - run: ruff check trae2codex tests
+      - run: ruff format --check trae2codex tests
+      - run: python -m pip install .
+      - run: trae2codex --help
+
+  codex-integration:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm install --prefix .local/codex --ignore-scripts @openai/codex@0.154.0
+      - name: Offline real-Codex tests
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            export TRAE2CODEX_TEST_CODEX="$GITHUB_WORKSPACE/.local/codex/node_modules/.bin/codex.cmd"
+          else
+            export TRAE2CODEX_TEST_CODEX="$GITHUB_WORKSPACE/.local/codex/node_modules/.bin/codex"
+          fi
+          python -m unittest discover -s tests -v
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install build twine
+      - run: python -m build
+      - run: python -m twine check dist/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: trae2codex-distributions
+          path: dist/*
