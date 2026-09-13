@@ -20,7 +20,14 @@
 
 ## 安装
 
-需要 Python 3.9+。转换部分只有标准库依赖，验证/导入需要上述固定版本的 Codex。**包尚未发布到 PyPI**，先从源码安装：
+需要 Python 3.9+。转换部分只有标准库依赖，验证/导入需要上述固定版本的 Codex。包尚未发布到 PyPI，可从 [GitHub Releases](https://github.com/yororoA/TraeCode2Codex/releases) 下载 wheel：
+
+```bash
+python3 -m pip install ./trae2codex-0.1.0-py3-none-any.whl
+trae2codex --help
+```
+
+也可以从源码安装：
 
 ```bash
 git clone https://github.com/yororoA/TraeCode2Codex.git
@@ -131,4 +138,4 @@ python3 -m pip install build
 python3 -m build
 ```
 
-Wheel 可供其他人通过 `pipx install dist/trae2codex-0.1.0-py3-none-any.whl` 安装。发布 PyPI、创建 Release 和实际上传均需维护者单独执行，本项目不会自动发布你的聊天或数据。
+Wheel 可供其他人通过 `pipx install dist/trae2codex-0.1.0-py3-none-any.whl` 安装。推送与 `pyproject.toml` 版本一致的 `vX.Y.Z` Tag 后，CI 会在所有单元测试、三平台 Codex 集成测试和构建校验通过后创建 GitHub Release，附带 wheel、源码包和 `SHA256SUMS`。该流程不发布 PyPI，也不会上传聊天或迁移数据。

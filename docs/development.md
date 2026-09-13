@@ -52,7 +52,7 @@
 
 ## 分发
 
-`python -m build` 生成 wheel 和源码包。`MANIFEST.in` 限定源码分发文件，排除研究目录、迁移包和用户原始记录。CI 只构建并上传构建产物，不上传 PyPI、不发布聊天数据；PyPI 名称可用性尚未核验。
+`python -m build` 生成 wheel 和源码包。`MANIFEST.in` 限定源码分发文件，排除研究目录、迁移包和用户原始记录。普通分支 CI 只构建 Actions Artifact；推送与包版本一致的 `vX.Y.Z` Tag 后，Release Job 仅在单元测试、三平台 Codex 集成测试和构建全部成功后运行，发布 wheel、源码包和 `SHA256SUMS` 到 GitHub Releases。流程不上传 PyPI、不发布聊天数据；PyPI 名称可用性尚未核验。
 
 发布前应执行：
 
@@ -63,6 +63,15 @@ python -m twine check dist/*
 ```
 
 集成测试另设置 `TRAE2CODEX_TEST_CODEX`。分享仓库/安装包之前确认 `.local`、`.research`、数据库、环境变量、原始聊天未被加入 Git。不要用 `git add -f` 包含这些路径。
+
+创建版本发布：
+
+```bash
+git tag -a v0.1.0 -m "trae2codex v0.1.0"
+git push origin v0.1.0
+```
+
+Tag 必须精确等于 `v` 加 `pyproject.toml` 与 `trae2codex.__version__` 中的版本；不匹配时 Release Job 会拒绝发布。GitHub Release 使用 `contents: write` 的最小 Job 权限，其他 Job 保持只读。
 
 ## 协议依据
 

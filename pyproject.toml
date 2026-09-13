@@ -19,6 +19,12 @@ classifiers = [
 ]
 dependencies = []
 
+[project.urls]
+Homepage = "https://github.com/yororoA/TraeCode2Codex"
+Repository = "https://github.com/yororoA/TraeCode2Codex"
+Issues = "https://github.com/yororoA/TraeCode2Codex/issues"
+Releases = "https://github.com/yororoA/TraeCode2Codex/releases"
+
 [project.scripts]
 trae2codex = "trae2codex.cli:main"
 
